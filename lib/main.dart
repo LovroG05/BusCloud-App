@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dropdown_search/dropdown_search.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,26 +36,38 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Object? _startStation;
-  List stations = [];
+  Map<String, dynamic> stations = {};
+  List<String> stationNames = [];
   final String url = "api.buscloud.ml";
 
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
-    var resBody = json.decode(res.body);
-
-    setState(() {
-      stations = resBody;
-    });
-
+    var resBody = res.body;
     print(resBody);
 
-    return "Success";
+    return resBody;
+  }
+
+  Future<List<String>> getStationNames() async {
+    Map<String, dynamic> stat = {};
+    stat = jsonDecode(await getStations());
+    List<String> statNames = [];
+    stat.forEach((key, value) {
+      statNames.add(value["lineName"]);
+    });
+
+    return statNames;
   }
 
   @override
   void initState() {
     super.initState();
-    this.getStations();
+    getStations().then((value) => setState(() {
+      stations = jsonDecode(value);
+    }));
+    getStationNames().then((value) => setState(() {
+      stationNames = value;
+    }));
   }
 
 
@@ -73,23 +86,18 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: IconButton(
           icon: Icon(Icons.home),
           onPressed: () {
+            
           },
         ),
       ),
       body: Center(
-        child: DropdownButton(
-          items: stations.map((item) {
-            return DropdownMenuItem(
-              child: Text(item['item_name']),
-              value: item['id'].toString(),
-            );
-          }).toList(),
-          onChanged: (newVal) {
-            setState(() {
-              _startStation = newVal;
-            });
-          },
-          value: _startStation,
+        child: DropdownSearch<String>(
+            mode: Mode.MENU,
+            items: stationNames,
+            label: "Menu mode",
+            hint: "Stations",
+            popupItemDisabled: (String s) => s.startsWith('I'),
+            onChanged: print,
         ),
       ),
       floatingActionButton: FloatingActionButton(
