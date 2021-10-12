@@ -35,7 +35,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Object? _startStation;
+  String homeStation = "";
+  String schoolStation = "";
   List<dynamic> stations = [];
   List<String> stationNames = [];
   final String url = "api.buscloud.ml";
@@ -43,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
     var resBody = res.body;
-    print(resBody);
+    /* print(resBody); */
 
     return resBody;
   }
@@ -80,6 +81,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void setHomeStation(str) {
+    stations.forEach((element) {
+      if (element["lineName"] == str) {
+        homeStation = element["lineId"];
+      }
+    });
+    print(homeStation);
+  }
+
+  void setSchoolStation(str) {
+    stations.forEach((element) {
+      if (element["lineName"] == str) {
+        schoolStation = element["lineId"];
+      }
+    });
+    print(schoolStation);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,14 +114,30 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        child: DropdownSearch<String>(
-            mode: Mode.MENU,
-            items: stationNames,
-            label: "Menu mode",
-            hint: "Stations",
-            popupItemDisabled: (String s) => s.startsWith('I'),
-            onChanged: print,
-        ),
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              DropdownSearch<String>(
+                  mode: Mode.MENU,
+                  items: stationNames,
+                  label: "Home Station",
+                  hint: "Stations",
+                  popupItemDisabled: (String s) => s.startsWith('I'),
+                  onChanged: setHomeStation,
+              ),
+              SizedBox(height: 10),
+              DropdownSearch<String>(
+                  mode: Mode.MENU,
+                  items: stationNames,
+                  label: "School Station",
+                  hint: "Stations",
+                  popupItemDisabled: (String s) => s.startsWith('I'),
+                  onChanged: setSchoolStation,
+              ),
+            ],
+          ),
+        )
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _search,
