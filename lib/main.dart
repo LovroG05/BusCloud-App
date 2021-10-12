@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final String url = "api.buscloud.ml";
   var datetime = DateFormat("yyyy-MM-dd").format(DateTime.now());
   bool latest_arrival_required = false;
-
+  var latest_arrival_time = TimeOfDay.now();
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
     var resBody = res.body;
@@ -106,11 +106,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _showDatePicker()async{
     var picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2015, 8), lastDate: DateTime(2101));
-    if(picked != null)
-    {
+    if(picked != null) {
       print(DateFormat("yyyy-MM-dd").format(picked));
       setState(() {
         datetime = DateFormat("yyyy-MM-dd").format(picked);
+      });
+    }
+  }
+
+  Future<void> _showTimePicker()async{
+    var picked = await showTimePicker(context: context,initialTime: TimeOfDay.now());
+    if(picked != null) {
+      print(picked.format(context));
+      setState(() {
+        latest_arrival_time = picked;
       });
     }
   }
@@ -252,12 +261,35 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         
-                        child: Text("Latest arrival required",
+                        child: Text("Latest Arrival Required",
                           style: TextStyle(color: Colors.grey),
                         ),
                       )
                     )
                   ],
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                child: Visibility(
+                  visible: latest_arrival_required,
+                  child: Flexible(
+                      child: OutlinedButton(
+                        onPressed: _showTimePicker,
+                        style: OutlinedButton.styleFrom(
+                          primary: Colors.grey,
+                          minimumSize: Size(88, 36),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          side: BorderSide(color: Colors.grey),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          ),
+                        ),
+                        child: Text("Latest Arrival: " + latest_arrival_time.format(context),
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    ),
                 ),
               )
             ],
