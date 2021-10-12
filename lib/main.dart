@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:date_format/date_format.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +22,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.indigo[500],
         fontFamily: "Segoe UI"
       ),
+      
       home: const MyHomePage(title: 'BusCloud'),
     );
   }
@@ -40,6 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<dynamic> stations = [];
   List<String> stationNames = [];
   final String url = "api.buscloud.ml";
+  var datetime = DateFormat("yyyy-MM-dd").format(DateTime.now());
+  bool latest_arrival_required = false;
 
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
@@ -97,6 +102,23 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
     print(schoolStation);
+  }
+
+  Future<void> _showDatePicker()async{
+    var picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2015, 8), lastDate: DateTime(2101));
+    if(picked != null)
+    {
+      print(DateFormat("yyyy-MM-dd").format(picked));
+      setState(() {
+        datetime = DateFormat("yyyy-MM-dd").format(picked);
+      });
+    }
+  }
+
+  void _toggleLatest() {
+    setState(() {
+      latest_arrival_required = !latest_arrival_required;
+    });
   }
 
   @override
@@ -189,6 +211,54 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                 )
+              ),
+              SizedBox(height: 10),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: OutlinedButton(
+                        onPressed: _showDatePicker,
+                        style: OutlinedButton.styleFrom(
+                          primary: Colors.grey,
+                          minimumSize: Size(88, 36),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          side: BorderSide(color: Colors.grey),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          ),
+                        ),
+                        
+                        child: Text("Date: " + datetime.toString(),
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    ),
+                    SizedBox(width: 5.0),
+                    Expanded(
+                      flex: 5,
+                      child: OutlinedButton(
+                        onPressed: _toggleLatest,
+                        style: OutlinedButton.styleFrom(
+                          primary: Colors.grey,
+                          minimumSize: Size(88, 36),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          side: BorderSide(color: Colors.grey),
+                          backgroundColor: latest_arrival_required ? Colors.black38 : Color(0xff2E2E2E),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          ),
+                        ),
+                        
+                        child: Text("Latest arrival required",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    )
+                  ],
+                ),
               )
             ],
           ),
