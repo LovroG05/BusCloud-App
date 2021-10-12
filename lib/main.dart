@@ -46,6 +46,16 @@ class _MyHomePageState extends State<MyHomePage> {
   var datetime = DateFormat("yyyy-MM-dd").format(DateTime.now());
   bool latest_arrival_required = false;
   var latest_arrival_time = TimeOfDay.now();
+
+  var startLines;
+  var endLines;
+
+  final time_margin_controller = TextEditingController();
+  final early_time_margin_controller = TextEditingController();
+  final username_controller = TextEditingController();
+  final password_controller = TextEditingController();
+
+
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
     var resBody = res.body;
@@ -81,9 +91,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-  void _search() {
-    setState(() {
-    });
+  void _search() async {
+    // TODO: check for input validity
+    var res1 = await http.get(Uri.https(url, "/api/v1/getlinestoschool", {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
+                                                                        "early_time_margin": early_time_margin_controller.text, "username": username_controller.text, "password": password_controller.text}));
+    var res1Body = res1.body;
+
+    var res2 = await await http.get(Uri.https(url, "/api/v1/getlinesfromschool", {"start_station": schoolStation, "end_station": homeStation, "date": datetime, "latest_arrival_required": latest_arrival_required, 
+                                                                                  "latest_arrival": latest_arrival_time.format(context), "early_time_margin": early_time_margin_controller.text, 
+                                                                                  "username": username_controller.text, "password": password_controller.text}));
+    var res2Body = res2.body;
+
+    startLines = res1Body;
+    endLines = res2Body;
   }
 
   void setHomeStation(str) {
@@ -274,22 +294,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Visibility(
                   visible: latest_arrival_required,
                   child: Flexible(
-                      child: OutlinedButton(
-                        onPressed: _showTimePicker,
-                        style: OutlinedButton.styleFrom(
-                          primary: Colors.grey,
-                          minimumSize: Size(88, 36),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          side: BorderSide(color: Colors.grey),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                          ),
+                    child: OutlinedButton(
+                      onPressed: _showTimePicker,
+                      style: OutlinedButton.styleFrom(
+                        primary: Colors.grey,
+                        minimumSize: Size(88, 36),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        side: BorderSide(color: Colors.grey),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(3.0)),
                         ),
-                        child: Text("Latest Arrival: " + latest_arrival_time.format(context),
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    ),
+                      ),
+                      child: Text("Latest Arrival: " + latest_arrival_time.format(context),
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  ),
                 ),
               )
             ],
