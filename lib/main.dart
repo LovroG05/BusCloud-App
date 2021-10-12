@@ -118,23 +118,78 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: EdgeInsets.all(10.0),
           child: Column(
             children: [
-              DropdownSearch<String>(
-                  mode: Mode.MENU,
-                  items: stationNames,
-                  label: "Home Station",
-                  hint: "Stations",
-                  popupItemDisabled: (String s) => s.startsWith('I'),
-                  onChanged: setHomeStation,
+              Container(
+                child: Column(
+                  children: [
+                    DropdownSearch<String>(
+                      mode: Mode.MENU,
+                      items: stationNames,
+                      label: "Home Station",
+                      hint: "Stations",
+                      popupItemDisabled: (String s) => s.startsWith('I'),
+                      onChanged: setHomeStation,
+                    ),
+                    SizedBox(height: 10),
+                    DropdownSearch<String>(
+                        mode: Mode.MENU,
+                        items: stationNames,
+                        label: "School Station",
+                        hint: "Stations",
+                        popupItemDisabled: (String s) => s.startsWith('I'),
+                        onChanged: setSchoolStation,
+                    ),
+                  ],
+                )
               ),
               SizedBox(height: 10),
-              DropdownSearch<String>(
-                  mode: Mode.MENU,
-                  items: stationNames,
-                  label: "School Station",
-                  hint: "Stations",
-                  popupItemDisabled: (String s) => s.startsWith('I'),
-                  onChanged: setSchoolStation,
+              Container(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Time Margin",
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Flexible(
+                      child: TextField(  
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Early Time Margin"
+                        )
+                      )
+                    ),
+                  ],
+                )
               ),
+              SizedBox(height: 10),
+              Container(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Username",
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Flexible(
+                      child: TextField(  
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Password"
+                        )
+                      )
+                    ),
+                  ],
+                )
+              )
             ],
           ),
         )
