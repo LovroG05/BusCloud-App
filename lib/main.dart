@@ -36,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Object? _startStation;
-  Map<String, dynamic> stations = {};
+  List<dynamic> stations = [];
   List<String> stationNames = [];
   final String url = "api.buscloud.ml";
 
@@ -49,11 +49,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<String>> getStationNames() async {
-    Map<String, dynamic> stat = {};
+    List<dynamic> stat = [];
     stat = jsonDecode(await getStations());
     List<String> statNames = [];
-    stat.forEach((key, value) {
+    /* stat.forEach((key, value) {
       statNames.add(value["lineName"]);
+    }); */
+
+    stat.forEach((element) {
+      statNames.add(element["lineName"]);
     });
 
     return statNames;
