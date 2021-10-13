@@ -55,6 +55,11 @@ class _MyHomePageState extends State<MyHomePage> {
   final username_controller = TextEditingController();
   final password_controller = TextEditingController();
 
+  bool _validateTimeMargin = true;
+  bool _validateEarlyTimeMargin = true;
+  bool _validateUsername = true;
+  bool _validatePassword = true;
+
 
   Future<String> getStations() async {
     var res = await http.get(Uri.https(url, "/api/v1/getstations"));
@@ -90,10 +95,48 @@ class _MyHomePageState extends State<MyHomePage> {
     }));
   }
 
+  bool _validate(controller) {
+    if (controller.text != "") {
+      return true;
+    }
+    return false;
+  }
+
+  bool _inputValid() {
+    setState(() {
+      _validateEarlyTimeMargin = _validate(early_time_margin_controller);
+      _validatePassword = _validate(password_controller);
+      _validateTimeMargin = _validate(time_margin_controller);
+      _validateUsername = _validate(username_controller);
+    });
+    
+
+    if (_validateEarlyTimeMargin) {
+      if (_validatePassword) {
+        if (_validateTimeMargin) {
+          if (_validateUsername) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } 
+
 
   void _search() async {
     // TODO: check for input validity
-    var res1 = await http.get(Uri.https(url, "/api/v1/getlinestoschool", {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
+    if (_inputValid()) {
+      print("true");
+    } else {print("false");}
+    /* var res1 = await http.get(Uri.https(url, "/api/v1/getlinestoschool", {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
                                                                         "early_time_margin": early_time_margin_controller.text, "username": username_controller.text, "password": password_controller.text}));
     var res1Body = res1.body;
 
@@ -103,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var res2Body = res2.body;
 
     startLines = res1Body;
-    endLines = res2Body;
+    endLines = res2Body; */
   }
 
   void setHomeStation(str) {
@@ -174,6 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     DropdownSearch<String>(
                       mode: Mode.MENU,
+                      showSearchBox: true,
                       items: stationNames,
                       label: "Home Station",
                       hint: "Stations",
@@ -183,6 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(height: 10),
                     DropdownSearch<String>(
                         mode: Mode.MENU,
+                        showSearchBox: true,
                         items: stationNames,
                         label: "School Station",
                         hint: "Stations",
@@ -198,18 +243,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Flexible(
                       child: TextField(
+                        controller: time_margin_controller,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Time Margin",
+                          errorText: _validateTimeMargin ? null : "Value can\'t be empty",
                         ),
                       ),
                     ),
                     SizedBox(width: 5),
                     Flexible(
-                      child: TextField(  
+                      child: TextField(
+                        controller: early_time_margin_controller,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: "Early Time Margin"
+                          labelText: "Early Time Margin",
+                          errorText: _validateEarlyTimeMargin ? null : "Value can\'t be empty",
                         )
                       )
                     ),
@@ -222,19 +271,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Flexible(
                       child: TextField(
+                        controller: username_controller,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: "Username",
+                          errorText: _validateUsername ? null : "Value can\'t be empty",
                         ),
                       ),
                     ),
                     SizedBox(width: 5),
                     Flexible(
                       child: TextField(  
+                        controller: password_controller,
                         obscureText: true,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: "Password"
+                          labelText: "Password",
+                          errorText: _validatePassword ? null : "Value can\'t be empty",
                         )
                       )
                     ),
