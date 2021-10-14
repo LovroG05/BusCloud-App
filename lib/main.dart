@@ -59,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _validateEarlyTimeMargin = true;
   bool _validateUsername = true;
   bool _validatePassword = true;
+  bool _validateHomeStation = true;
+  bool _validateSchoolStation = true;
 
 
   Future<String> getStations() async {
@@ -102,12 +104,29 @@ class _MyHomePageState extends State<MyHomePage> {
     return false;
   }
 
+  bool _validateHome() {
+    if (homeStation != "") {
+        return true;
+    }
+    return false;
+  }
+
+  bool _validateSchool() {
+    if (schoolStation != "") {
+        return true;
+    }
+    return false;
+  }
+
+
   bool _inputValid() {
     setState(() {
       _validateEarlyTimeMargin = _validate(early_time_margin_controller);
       _validatePassword = _validate(password_controller);
       _validateTimeMargin = _validate(time_margin_controller);
       _validateUsername = _validate(username_controller);
+      _validateHomeStation = _validateHome();
+      _validateSchoolStation = _validateSchool();
     });
     
 
@@ -130,23 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   } 
 
-
-  void _search() async {
-    // TODO: check for input validity
+  void _search() {
     if (_inputValid()) {
-      print("true");
-    } else {print("false");}
-    /* var res1 = await http.get(Uri.https(url, "/api/v1/getlinestoschool", {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
-                                                                        "early_time_margin": early_time_margin_controller.text, "username": username_controller.text, "password": password_controller.text}));
-    var res1Body = res1.body;
+      var toSchoolJson = {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
+                         "early_time_margin": early_time_margin_controller.text, "username": username_controller.text, "password": password_controller.text};
 
-    var res2 = await await http.get(Uri.https(url, "/api/v1/getlinesfromschool", {"start_station": schoolStation, "end_station": homeStation, "date": datetime, "latest_arrival_required": latest_arrival_required, 
-                                                                                  "latest_arrival": latest_arrival_time.format(context), "early_time_margin": early_time_margin_controller.text, 
-                                                                                  "username": username_controller.text, "password": password_controller.text}));
-    var res2Body = res2.body;
-
-    startLines = res1Body;
-    endLines = res2Body; */
+      var fromSchoolJson = {"start_station": schoolStation, "end_station": homeStation, "date": datetime, "latest_arrival_required": latest_arrival_required, 
+                           "latest_arrival": latest_arrival_time.format(context), "early_time_margin": early_time_margin_controller.text, 
+                           "username": username_controller.text, "password": password_controller.text};
+    }
   }
 
   void setHomeStation(str) {
@@ -208,166 +219,178 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        child: Padding(
+        child: ListView(
           padding: EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              Container(
-                child: Column(
-                  children: [
-                    DropdownSearch<String>(
-                      mode: Mode.MENU,
-                      showSearchBox: true,
-                      items: stationNames,
-                      label: "Home Station",
-                      hint: "Stations",
-                      popupItemDisabled: (String s) => s.startsWith('I'),
-                      onChanged: setHomeStation,
-                    ),
-                    SizedBox(height: 10),
-                    DropdownSearch<String>(
+          children: [
+            Column(
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      DropdownSearch<String>(
                         mode: Mode.MENU,
                         showSearchBox: true,
                         items: stationNames,
-                        label: "School Station",
+                        label: "Home Station",
                         hint: "Stations",
                         popupItemDisabled: (String s) => s.startsWith('I'),
-                        onChanged: setSchoolStation,
-                    ),
-                  ],
-                )
-              ),
-              SizedBox(height: 10),
-              Container(
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: TextField(
-                        controller: time_margin_controller,
-                        decoration: InputDecoration(
+                        onChanged: setHomeStation,
+                        dropdownSearchDecoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                          errorText: _validateSchoolStation ? null : "Please pick a station",
                           border: OutlineInputBorder(),
-                          labelText: "Time Margin",
-                          errorText: _validateTimeMargin ? null : "Value can\'t be empty",
                         ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Flexible(
-                      child: TextField(
-                        controller: early_time_margin_controller,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Early Time Margin",
-                          errorText: _validateEarlyTimeMargin ? null : "Value can\'t be empty",
-                        )
-                      )
-                    ),
-                  ],
-                )
-              ),
-              SizedBox(height: 10),
-              Container(
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: TextField(
-                        controller: username_controller,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Username",
-                          errorText: _validateUsername ? null : "Value can\'t be empty",
-                        ),
+                      SizedBox(height: 10),
+                      DropdownSearch<String>(
+                          mode: Mode.MENU,
+                          showSearchBox: true,
+                          items: stationNames,
+                          label: "School Station",
+                          hint: "Stations",
+                          popupItemDisabled: (String s) => s.startsWith('I'),
+                          onChanged: setSchoolStation,
+                          dropdownSearchDecoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                            errorText: _validateSchoolStation ? null : "Please pick a station",
+                            border: OutlineInputBorder(),
+                          ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Flexible(
-                      child: TextField(  
-                        controller: password_controller,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Password",
-                          errorText: _validatePassword ? null : "Value can\'t be empty",
-                        )
-                      )
-                    ),
-                  ],
-                )
-              ),
-              SizedBox(height: 10),
-              Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: OutlinedButton(
-                        onPressed: _showDatePicker,
-                        style: OutlinedButton.styleFrom(
-                          primary: Colors.grey,
-                          minimumSize: Size(88, 36),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          side: BorderSide(color: Colors.grey),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                          ),
-                        ),
-                        
-                        child: Text("Date: " + datetime.toString(),
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      flex: 5,
-                      child: OutlinedButton(
-                        onPressed: _toggleLatest,
-                        style: OutlinedButton.styleFrom(
-                          primary: Colors.grey,
-                          minimumSize: Size(88, 36),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          side: BorderSide(color: Colors.grey),
-                          backgroundColor: latest_arrival_required ? Colors.black38 : Color(0xff2E2E2E),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                          ),
-                        ),
-                        
-                        child: Text("Latest Arrival Required",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    )
-                  ],
+                    ],
+                  )
                 ),
-              ),
-              SizedBox(height: 10),
-              Container(
-                child: Visibility(
-                  visible: latest_arrival_required,
-                  child: Flexible(
-                    child: OutlinedButton(
-                      onPressed: _showTimePicker,
-                      style: OutlinedButton.styleFrom(
-                        primary: Colors.grey,
-                        minimumSize: Size(88, 36),
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        side: BorderSide(color: Colors.grey),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                SizedBox(height: 10),
+                Container(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          controller: time_margin_controller,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Time Margin",
+                            errorText: _validateTimeMargin ? null : "Value can\'t be empty",
+                          ),
                         ),
                       ),
-                      child: Text("Latest Arrival: " + latest_arrival_time.format(context),
-                        style: TextStyle(color: Colors.grey),
+                      SizedBox(width: 5),
+                      Flexible(
+                        child: TextField(
+                          controller: early_time_margin_controller,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Early Time Margin",
+                            errorText: _validateEarlyTimeMargin ? null : "Value can\'t be empty",
+                          )
+                        )
                       ),
-                    )
+                    ],
+                  )
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          controller: username_controller,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Username",
+                            errorText: _validateUsername ? null : "Value can\'t be empty",
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      Flexible(
+                        child: TextField(  
+                          controller: password_controller,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Password",
+                            errorText: _validatePassword ? null : "Value can\'t be empty",
+                          )
+                        )
+                      ),
+                    ],
+                  )
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: OutlinedButton(
+                          onPressed: _showDatePicker,
+                          style: OutlinedButton.styleFrom(
+                            primary: Colors.grey,
+                            minimumSize: Size(88, 36),
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            side: BorderSide(color: Colors.grey),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                            ),
+                          ),
+                          
+                          child: Text("Date: " + datetime.toString(),
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      ),
+                      SizedBox(width: 5.0),
+                      Expanded(
+                        flex: 5,
+                        child: OutlinedButton(
+                          onPressed: _toggleLatest,
+                          style: OutlinedButton.styleFrom(
+                            primary: Colors.grey,
+                            minimumSize: Size(88, 36),
+                            padding: EdgeInsets.symmetric(horizontal: 16.0),
+                            side: BorderSide(color: Colors.grey),
+                            backgroundColor: latest_arrival_required ? Colors.black38 : Color(0xff2E2E2E),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                            ),
+                          ),
+                          
+                          child: Text("Latest Arrival Required",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      )
+                    ],
                   ),
                 ),
-              )
-            ],
-          ),
-        )
+                SizedBox(height: 10),
+                Container(
+                  child: Visibility(
+                    visible: latest_arrival_required,
+                    child: Flexible(
+                      child: OutlinedButton(
+                        onPressed: _showTimePicker,
+                        style: OutlinedButton.styleFrom(
+                          primary: Colors.grey,
+                          minimumSize: Size(88, 36),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          side: BorderSide(color: Colors.grey),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          ),
+                        ),
+                        child: Text("Latest Arrival: " + latest_arrival_time.format(context),
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _search,
