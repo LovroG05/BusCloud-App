@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
+import 'lines_loading.dart';
 
 void main() {
   runApp(const MyApp());
@@ -149,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   } 
 
-  void _search() {
+  void _pushDataAndLoad() {
     if (_inputValid()) {
       var toSchoolJson = {"start_station": homeStation, "end_station": schoolStation, "date": datetime, "time_margin": time_margin_controller.text, 
                          "early_time_margin": early_time_margin_controller.text, "username": username_controller.text, "password": password_controller.text};
@@ -157,6 +158,10 @@ class _MyHomePageState extends State<MyHomePage> {
       var fromSchoolJson = {"start_station": schoolStation, "end_station": homeStation, "date": datetime, "latest_arrival_required": latest_arrival_required, 
                            "latest_arrival": latest_arrival_time.format(context), "early_time_margin": early_time_margin_controller.text, 
                            "username": username_controller.text, "password": password_controller.text};
+
+      Navigator.push(context,
+        MaterialPageRoute(builder: (_) => LinesLoadingPage(linesToData: toSchoolJson, linesFromData: fromSchoolJson)),
+      );
     }
   }
 
@@ -393,7 +398,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _search,
+        onPressed: _pushDataAndLoad,
         tooltip: 'Search',
         child: const Icon(Icons.search),
         backgroundColor: Theme.of(context).primaryColor,
