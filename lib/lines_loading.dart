@@ -27,19 +27,20 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
     super.initState();
   }
 
-  Future<dynamic> getAllLines() async {
-    return [await getLinesTo(), await getLinesFrom()];
+  dynamic getAllLines() async {
+    final results = await Future.wait([
+      http.get(Uri.https(url, "/api/v1/getlinestoschool", linesToData)),
+      http.get(Uri.https(url, "/api/v1/getlinesfromschool", linesFromData))
+    ]);
+    if (results[0].statusCode == 200 && results[1].statusCode == 200) {
+      return results;
+    } else {
+      print("1: " + results[0].statusCode.toString());
+      print("2: " + results[1].statusCode.toString());
+      return null;
+    }
   }
 
-  Future<dynamic> getLinesTo() async {
-    var response = await http.get(Uri.https(url, "/api/v1/getlinestoschool", linesToData));
-    return response.body;
-  }
-
-  Future<dynamic> getLinesFrom() async {
-    var response = await http.get(Uri.https(url, "/api/v1/getlinesfromschool", linesFromData));
-    return response.body;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +53,12 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
           FutureBuilder(
             future: getAllLines(),
             builder: (context, snapshot) {
-              if(snapshot.connectionState == ConnectionState.done) {
+              if(snapshot.hasData) {
                 print(snapshot.data);
                 return Text(snapshot.data.toString());
               }  
               else {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }
             }
           )
