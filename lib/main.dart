@@ -346,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         )
                       ),
                       SizedBox(width: 5.0),
-                      Expanded(
+                      /* Expanded(
                         flex: 5,
                         child: OutlinedButton(
                           onPressed: _toggleLatest,
@@ -365,11 +365,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             style: TextStyle(color: Colors.grey),
                           ),
                         )
-                      )
+                      ) */
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                /* SizedBox(height: 10),
                 Container(
                   child: Visibility(
                     visible: latest_arrival_required,
@@ -391,7 +391,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                     ),
                   ),
-                )
+                ) */
               ],
             ),
           ],
