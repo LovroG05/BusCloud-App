@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'BusCloud',
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.indigo[500],
@@ -346,52 +346,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         )
                       ),
                       SizedBox(width: 5.0),
-                      /* Expanded(
-                        flex: 5,
-                        child: OutlinedButton(
-                          onPressed: _toggleLatest,
-                          style: OutlinedButton.styleFrom(
-                            primary: Colors.grey,
-                            minimumSize: Size(88, 36),
-                            padding: EdgeInsets.symmetric(horizontal: 16.0),
-                            side: BorderSide(color: Colors.grey),
-                            backgroundColor: latest_arrival_required ? Colors.black38 : Color(0xff2E2E2E),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                            ),
-                          ),
-                          
-                          child: Text("Latest Arrival Required",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      ) */
                     ],
                   ),
                 ),
-                /* SizedBox(height: 10),
-                Container(
-                  child: Visibility(
-                    visible: latest_arrival_required,
-                    child: Flexible(
-                      child: OutlinedButton(
-                        onPressed: _showTimePicker,
-                        style: OutlinedButton.styleFrom(
-                          primary: Colors.grey,
-                          minimumSize: Size(88, 36),
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          side: BorderSide(color: Colors.grey),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                          ),
-                        ),
-                        child: Text("Latest Arrival: " + latest_arrival_time.format(context),
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    ),
-                  ),
-                ) */
               ],
             ),
           ],

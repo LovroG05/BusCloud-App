@@ -43,7 +43,15 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        
+        centerTitle: true,
+        title: Text("BusCloud"),
+        backgroundColor: Theme.of(context).primaryColor,
+        leading: IconButton(
+          icon: Icon(Icons.home),
+          onPressed: () {
+            
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -51,8 +59,8 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
             future: Future.wait([getToLines(), getFromLines()]),
             builder: (context, snapshot) {
               if(snapshot.hasData) {
-                print("1");
-                return Text("1");
+                
+                return Text("Succeded");
               }  
               else {
                 	return Center(child: Image(image: AssetImage("assets/bus.gif"),));
