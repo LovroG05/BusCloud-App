@@ -27,18 +27,15 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
     super.initState();
   }
 
-  dynamic getAllLines() async {
-    final results = await Future.wait([
-      http.get(Uri.https(url, "/api/v1/getlinestoschool", linesToData)),
-      http.get(Uri.https(url, "/api/v1/getlinesfromschool", linesFromData))
-    ]);
-    if (results[0].statusCode == 200 && results[1].statusCode == 200) {
-      return results;
-    } else {
-      print("1: " + results[0].statusCode.toString());
-      print("2: " + results[1].statusCode.toString());
-      return null;
-    }
+  Future<http.Response> getToLines() async {
+    var r1 = await http.get(Uri.https(url, "/api/v1/getlinestoschool", linesToData)).timeout(Duration(seconds: 30));
+    return r1;
+  }
+
+  Future<http.Response> getFromLines() async {
+    print(linesFromData);
+    var r2 = await http.get(Uri.https(url, "/api/v1/getlinesfromschool", linesFromData)).timeout(Duration(seconds: 30));
+    return r2;
   }
 
 
@@ -51,17 +48,17 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {  Map<String, dyna
       body: Column(
         children: [
           FutureBuilder(
-            future: getAllLines(),
+            future: Future.wait([getToLines(), getFromLines()]),
             builder: (context, snapshot) {
               if(snapshot.hasData) {
-                print(snapshot.data);
-                return Text(snapshot.data.toString());
+                print("1");
+                return Text("1");
               }  
               else {
-                return Center(child: CircularProgressIndicator());
+                	return Center(child: Image(image: AssetImage("assets/bus.gif"),));
               }
             }
-          )
+          ),
         ],
       ),
     );
