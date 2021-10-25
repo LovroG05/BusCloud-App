@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                            "username": username_controller.text, "password": password_controller.text};
 
       Navigator.push(context,
-        MaterialPageRoute(builder: (_) => LinesLoadingPage(linesToData: toSchoolJson, linesFromData: fromSchoolJson)),
+        MaterialPageRoute(builder: (_) => LinesLoadingPage(linesToData: toSchoolJson, linesFromData: fromSchoolJson, stations: stations)),
       );
     }
   }
@@ -171,7 +171,6 @@ class _MyHomePageState extends State<MyHomePage> {
         homeStation = element["lineId"];
       }
     });
-    print(homeStation);
   }
 
   void setSchoolStation(str) {
@@ -180,13 +179,11 @@ class _MyHomePageState extends State<MyHomePage> {
         schoolStation = element["lineId"];
       }
     });
-    print(schoolStation);
   }
 
   Future<void> _showDatePicker()async{
     var picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2015, 8), lastDate: DateTime(2101));
     if(picked != null) {
-      print(DateFormat("yyyy-MM-dd").format(picked));
       setState(() {
         datetime = DateFormat("yyyy-MM-dd").format(picked);
       });
