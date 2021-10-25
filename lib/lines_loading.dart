@@ -74,10 +74,11 @@ class _LinesLoadingPageState extends State<LinesLoadingPage> {
       ),
       body: Column(
         children: [
-          FutureBuilder(
+          FutureBuilder( 
             future: Future.wait([getToLines(), getFromLines()]),
             builder: (context, AsyncSnapshot<List<http.Response>> snapshot) {
               if(snapshot.hasData) {
+                print(snapshot.data![1].body);
                 toSchool = json.decode(snapshot.data![0].body);
                 fromSchool = json.decode(snapshot.data![1].body);
                 toLines = toSchool["lines"];

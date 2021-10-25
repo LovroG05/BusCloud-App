@@ -43,6 +43,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String homeStation = "";
   String schoolStation = "";
+  String homeStationName = "";
+  String schoolStationName = "";
   List<dynamic> stations = [];
   List<String> stationNames = [];
   final String url = "api.buscloud.ml";
@@ -113,18 +115,12 @@ class _MyHomePageState extends State<MyHomePage> {
     String? username_ = prefs.getString("username");
     String? password_ = prefs.getString("password");
     
-    return [home_station_id, time_margin, early_time_margin, username_, password_];
+    return [home_station_id, school_station_id, time_margin, early_time_margin, username_, password_];
   }
 
   @override
   void initState() {
     super.initState();
-    getStations().then((value) => setState(() {
-      stations = jsonDecode(value);
-    }));
-    getStationNames().then((value) => setState(() {
-      stationNames = value;
-    }));
   }
 
   bool _validate(controller) {
@@ -236,6 +232,46 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void assignStored(List data) {
+    //[home_station_id, school_station_id, time_margin, early_time_margin, username_, password_]
+    String? home_station_id = data[0];
+    String? school_station_id = data[1];
+    String? time_margin = data[2];
+    String? early_time_margin = data[3];
+    String? username_ = data[4];
+    String? password_ = data[5];
+
+    if (home_station_id != null) {
+      homeStation = home_station_id;
+      stations.forEach((element) {
+        if (element["lineId"] == home_station_id) {
+          homeStationName = element["lineName"];
+        }
+      });
+    }
+    if (school_station_id != null) {
+      schoolStation = school_station_id;
+      stations.forEach((element) {
+        if (element["lineId"] == school_station_id) {
+          schoolStationName = element["lineName"];
+        }
+      });
+    }
+    if (time_margin != null) {
+      time_margin_controller.text = time_margin;
+    }
+    if (early_time_margin != null) {
+      early_time_margin_controller.text = early_time_margin;
+    }
+    if (username_ != null) {
+      username_controller.text = username_;
+    }
+    if (password_ != null) {
+      password_controller.text = password_;
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -252,8 +288,146 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: FutureBuilder(
-          future: [readStoredQuery(), getStations(), getStationNames()],
-          builder: (context, snapshot),
+          future: Future.wait([readStoredQuery(), getStations(), getStationNames()]),
+          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+            if (snapshot.hasData) {
+              assignStored(snapshot.data![0]);
+              stations = jsonDecode(snapshot.data![1]);
+              stationNames = snapshot.data![2];
+              return ListView(
+                padding: EdgeInsets.all(10.0),
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                        child: Column(
+                          children: [
+                            DropdownSearch<String>(
+                              mode: Mode.MENU,
+                              selectedItem: homeStationName,
+                              showSearchBox: true,
+                              items: stationNames,
+                              label: "Home Station",
+                              hint: "Stations",
+                              popupItemDisabled: (String s) => s.startsWith('I'),
+                              onChanged: setHomeStation,
+                              dropdownSearchDecoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                                errorText: _validateSchoolStation ? null : "Please pick a station",
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            DropdownSearch<String>(
+                                mode: Mode.MENU,
+                                showSearchBox: true,
+                                items: stationNames,
+                                label: "School Station",
+                                hint: "Stations",
+                                popupItemDisabled: (String s) => s.startsWith('I'),
+                                onChanged: setSchoolStation,
+                                dropdownSearchDecoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                                  errorText: _validateSchoolStation ? null : "Please pick a station",
+                                  border: OutlineInputBorder(),
+                                ),
+                            ),
+                          ],
+                        )
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                controller: time_margin_controller,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Time Margin",
+                                  errorText: _validateTimeMargin ? null : "Value can\'t be empty",
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Flexible(
+                              child: TextField(
+                                controller: early_time_margin_controller,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Early Time Margin",
+                                  errorText: _validateEarlyTimeMargin ? null : "Value can\'t be empty",
+                                )
+                              )
+                            ),
+                          ],
+                        )
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: TextField(
+                                controller: username_controller,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Username",
+                                  errorText: _validateUsername ? null : "Value can\'t be empty",
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Flexible(
+                              child: TextField(  
+                                controller: password_controller,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Password",
+                                  errorText: _validatePassword ? null : "Value can\'t be empty",
+                                )
+                              )
+                            ),
+                          ],
+                        )
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: OutlinedButton(
+                                onPressed: _showDatePicker,
+                                style: OutlinedButton.styleFrom(
+                                  primary: Colors.grey,
+                                  minimumSize: Size(88, 36),
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  side: BorderSide(color: Colors.grey),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                                  ),
+                                ),
+                                
+                                child: Text("Date: " + datetime.toString(),
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              )
+                            ),
+                            SizedBox(width: 5.0),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            } else {
+              return Center(child: Image(image: AssetImage("assets/bus.gif"),));
+            }
+          },
         )
       ),
       floatingActionButton: FloatingActionButton(
