@@ -5,6 +5,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
 import 'lines_loading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 void main() {
@@ -49,6 +50,11 @@ class _MyHomePageState extends State<MyHomePage> {
   bool latest_arrival_required = false;
   var latest_arrival_time = TimeOfDay.now();
 
+  String initialTimeMargin = "";
+  String initialEarlyTimeMargin = "";
+  String initialUsername = "";
+  String initialPassword = "";
+
   var startLines;
   var endLines;
 
@@ -86,6 +92,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     return statNames;
+  }
+
+  Future<void> storeQuery() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("home_station_id", homeStation);
+    prefs.setString("school_station_id", schoolStation);
+    prefs.setString("time_margin", time_margin_controller.text);
+    prefs.setString("early_time_margin", early_time_margin_controller.text);
+    prefs.setString("username", username_controller.text);
+    prefs.setString("password", password_controller.text);
+  }
+
+  Future<List<dynamic>> readStoredQuery() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? home_station_id = prefs.getString("home_station_id");
+    String? school_station_id = prefs.getString("school_station_id");
+    String? time_margin = prefs.getString("time_margin");
+    String? early_time_margin = prefs.getString("early_time_margin");
+    String? username_ = prefs.getString("username");
+    String? password_ = prefs.getString("password");
+    
+    return [home_station_id, time_margin, early_time_margin, username_, password_];
   }
 
   @override
@@ -159,6 +187,8 @@ class _MyHomePageState extends State<MyHomePage> {
       var fromSchoolJson = {"start_station": schoolStation, "end_station": homeStation, "date": datetime, "early_time_margin": time_margin_controller.text, 
                            "username": username_controller.text, "password": password_controller.text};
 
+      storeQuery();
+
       Navigator.push(context,
         MaterialPageRoute(builder: (_) => LinesLoadingPage(linesToData: toSchoolJson, linesFromData: fromSchoolJson, stations: stations)),
       );
@@ -221,135 +251,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Center(
-        child: ListView(
-          padding: EdgeInsets.all(10.0),
-          children: [
-            Column(
-              children: [
-                Container(
-                  child: Column(
-                    children: [
-                      DropdownSearch<String>(
-                        mode: Mode.MENU,
-                        showSearchBox: true,
-                        items: stationNames,
-                        label: "Home Station",
-                        hint: "Stations",
-                        popupItemDisabled: (String s) => s.startsWith('I'),
-                        onChanged: setHomeStation,
-                        dropdownSearchDecoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
-                          errorText: _validateSchoolStation ? null : "Please pick a station",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      DropdownSearch<String>(
-                          mode: Mode.MENU,
-                          showSearchBox: true,
-                          items: stationNames,
-                          label: "School Station",
-                          hint: "Stations",
-                          popupItemDisabled: (String s) => s.startsWith('I'),
-                          onChanged: setSchoolStation,
-                          dropdownSearchDecoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
-                            errorText: _validateSchoolStation ? null : "Please pick a station",
-                            border: OutlineInputBorder(),
-                          ),
-                      ),
-                    ],
-                  )
-                ),
-                SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: TextField(
-                          controller: time_margin_controller,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Time Margin",
-                            errorText: _validateTimeMargin ? null : "Value can\'t be empty",
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 5),
-                      Flexible(
-                        child: TextField(
-                          controller: early_time_margin_controller,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Early Time Margin",
-                            errorText: _validateEarlyTimeMargin ? null : "Value can\'t be empty",
-                          )
-                        )
-                      ),
-                    ],
-                  )
-                ),
-                SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: TextField(
-                          controller: username_controller,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Username",
-                            errorText: _validateUsername ? null : "Value can\'t be empty",
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 5),
-                      Flexible(
-                        child: TextField(  
-                          controller: password_controller,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Password",
-                            errorText: _validatePassword ? null : "Value can\'t be empty",
-                          )
-                        )
-                      ),
-                    ],
-                  )
-                ),
-                SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: OutlinedButton(
-                          onPressed: _showDatePicker,
-                          style: OutlinedButton.styleFrom(
-                            primary: Colors.grey,
-                            minimumSize: Size(88, 36),
-                            padding: EdgeInsets.symmetric(horizontal: 16.0),
-                            side: BorderSide(color: Colors.grey),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                            ),
-                          ),
-                          
-                          child: Text("Date: " + datetime.toString(),
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        )
-                      ),
-                      SizedBox(width: 5.0),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        child: FutureBuilder(
+          future: [readStoredQuery(), getStations(), getStationNames()],
+          builder: (context, snapshot),
+        )
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _pushDataAndLoad,
