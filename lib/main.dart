@@ -257,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (element["lineId"] == school_station_id) {
           schoolStationName = element["lineName"];
         }
-      });
+      }); 
     }
     if (time_margin != null) {
       time_margin_controller.text = time_margin;
