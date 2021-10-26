@@ -241,6 +241,8 @@ class _MyHomePageState extends State<MyHomePage> {
     String? username_ = data[4];
     String? password_ = data[5];
 
+    print(stations);
+
     if (home_station_id != null) {
       homeStation = home_station_id;
       stations.forEach((element) {
@@ -291,9 +293,9 @@ class _MyHomePageState extends State<MyHomePage> {
           future: Future.wait([readStoredQuery(), getStations(), getStationNames()]),
           builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
             if (snapshot.hasData) {
-              assignStored(snapshot.data![0]);
               stations = jsonDecode(snapshot.data![1]);
               stationNames = snapshot.data![2];
+              assignStored(snapshot.data![0]);
               return ListView(
                 padding: EdgeInsets.all(10.0),
                 children: [
@@ -320,6 +322,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             SizedBox(height: 10),
                             DropdownSearch<String>(
                                 mode: Mode.MENU,
+                                selectedItem: schoolStationName,
                                 showSearchBox: true,
                                 items: stationNames,
                                 label: "School Station",
